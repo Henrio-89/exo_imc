@@ -38,16 +38,24 @@ class _ImcFormState extends State<ImcForm> {
                     label: Text("Taille (cm)*"),
                   ),
                   validator: (value) {
+                    String message;
                     if (value == null || value.isEmpty) {
-                      return "Taille est requis";
+                      message = "Taille est requis";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     // Vérifier si la valeur est un nombre entier positif
                     if (int.tryParse(value) == null || int.parse(value) < 0) {
-                      return "Taille doit être un nombre entier positif";
+                      message = "Taille doit être un nombre entier positif";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     // Vérifier si la taille est inférieure à 10
                     if (int.parse(value) <= 50) {
-                      return "La taille doit être supérieure ou égale à 50 cm";
+                      message =
+                          "La taille doit être supérieure ou égale à 50 cm";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     return null;
                   },
@@ -59,11 +67,17 @@ class _ImcFormState extends State<ImcForm> {
                     label: Text("Poids (kg)*"),
                   ),
                   validator: (value) {
+                    String message;
                     if (value == null || value.isEmpty) {
-                      return "Poids est requis";
+                      message = "Poids est requis";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     if (int.tryParse(value) == null || int.parse(value) < 0) {
-                      return "Taille doit être un nombre entier positif et supérieure ou égale à 1 kg";
+                      message =
+                          "Taille doit être un nombre entier positif et supérieure ou égale à 1 kg";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     return null;
                   },
@@ -72,8 +86,11 @@ class _ImcFormState extends State<ImcForm> {
                 DropdownButtonFormField(
                   value: sexeSelected,
                   validator: (value) {
+                    String message;
                     if (value == null || value.isEmpty) {
-                      return "Veuillez sélectionner un sexe";
+                      message = "Veuillez sélectionner un sexe";
+                      afficherResultatSnackbar(message);
+                      return message;
                     }
                     return null;
                   },
@@ -107,7 +124,7 @@ class _ImcFormState extends State<ImcForm> {
                       },
                       color: Colors.blue,
                       child: const Text(
-                        "Dialog result",
+                        "Pop up result",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -167,7 +184,7 @@ class _ImcFormState extends State<ImcForm> {
 
     double imc = calculerIMC(poids, taille, sexe);
     List<dynamic> result = calculerResultats(imc, poids, taille, sexe);
-    afficherResultatSnackbar(result);
+    afficherResultatPopup(result);
   }
 
   List<dynamic> calculPageResult() {
@@ -220,28 +237,61 @@ class _ImcFormState extends State<ImcForm> {
     return [formattedResult, poids, category, poidsIdealText, advice];
   }
 
-  void afficherResultatSnackbar(List<dynamic> result) {
+  void afficherResultatPopup(List<dynamic> result) {
     String formattedResult = result[0];
     double poids = result[1];
     String category = result[2];
     String poidsIdealText = result[3];
     String advice = result[4];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Résultat de l'IMC"),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Résultat: $formattedResult"),
+              SizedBox(height: 8),
+              Text("Poids: $poids kg"), // Afficher le poids de la personne
+              SizedBox(height: 8),
+              Text("Catégorie: $category"),
+              SizedBox(height: 8),
+              if (poidsIdealText.isNotEmpty) Text(poidsIdealText),
+              SizedBox(height: 8),
+              Text("Conseils: $advice"),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer la boîte de dialogue
+              },
+              child: Text('Fermer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void afficherResultatSnackbar(String message,
+      {Color backgroundColor = Colors.red, Color textColor = Colors.white}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 10),
+        duration: const Duration(seconds: 5),
+        backgroundColor: backgroundColor,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Résultat: $formattedResult"),
-            const SizedBox(height: 8),
-            Text("Poids: $poids kg"), // Afficher le poids de la personne
-            const SizedBox(height: 8),
-            Text("Catégorie: $category"),
-            const SizedBox(height: 8),
-            if (poidsIdealText.isNotEmpty) Text(poidsIdealText),
-            const SizedBox(height: 8),
-            Text("Conseils: $advice"),
+            Text(
+              message,
+              style: TextStyle(
+                  color: textColor, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
