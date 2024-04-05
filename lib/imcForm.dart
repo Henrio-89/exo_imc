@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:oexchage/resultPage.dart';
 
 class ImcForm extends StatefulWidget {
   const ImcForm({super.key});
@@ -21,12 +22,12 @@ class _ImcFormState extends State<ImcForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Healthy BMI: Calcul d'Indice de Masse Corporelle"),
+        title: const Text("Calcul d'Indice de Masse Corporelle"),
       ),
       body: Container(
         // decoration: BoxDecoration(),
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -43,7 +44,7 @@ class _ImcFormState extends State<ImcForm> {
                     return null;
                   },
                 ),
-                SizedBox(width:10,height: 10),
+                const SizedBox(width: 10, height: 10),
                 TextFormField(
                   controller: _poidsController,
                   decoration: const InputDecoration(
@@ -56,7 +57,7 @@ class _ImcFormState extends State<ImcForm> {
                     return null;
                   },
                 ),
-                SizedBox(width:10,height: 10),
+                const SizedBox(width: 10, height: 10),
                 DropdownButtonFormField(
                   value: sexeSelected,
                   onChanged: (newValue) {
@@ -79,17 +80,34 @@ class _ImcFormState extends State<ImcForm> {
                     border: OutlineInputBorder(), // Style de bordure
                   ),
                 ),
-                MaterialButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      calcul();
-                    }
-                  },
-                  color: Colors.blue,
-                  child: const Text(
-                    "Valide",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                Row(
+                  children: [
+                    MaterialButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          calcul();
+                        }
+                      },
+                      color: Colors.blue,
+                      child: const Text(
+                        "Dialog result",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    MaterialButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          resultPageRoot();
+                        }
+                      },
+                      color: const Color.fromARGB(255, 23, 58, 87),
+                      child: const Text(
+                        "New page result",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -97,6 +115,12 @@ class _ImcFormState extends State<ImcForm> {
         ),
       ),
     );
+  }
+
+  void resultPageRoot() {
+    var result = calculPageResult();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => ResultPage(result: result)));
   }
 
   double calculerIMC(double poids, double taille, String sexe) {
@@ -120,20 +144,33 @@ class _ImcFormState extends State<ImcForm> {
   }
 
   void calcul() {
-    //FORMULE
     double poids = double.parse(_poidsController.text);
     double taille = double.parse(_taillsController.text);
     String sexe = sexeSelected.toString();
 
-    double result = calculerIMC(poids, taille, sexe);
-    String formattedResult =
-        result.toStringAsFixed(2); // Arrondir le résultat à deux décimales
+    double imc = calculerIMC(poids, taille, sexe);
+    List<dynamic> result = calculerResultats(imc, poids, taille, sexe);
+    afficherResultatSnackbar(result);
+  }
 
+  List<dynamic> calculPageResult() {
+    double poids = double.parse(_poidsController.text);
+    double taille = double.parse(_taillsController.text);
+    String sexe = sexeSelected.toString();
+
+    double imc = calculerIMC(poids, taille, sexe);
+    return calculerResultats(imc, poids, taille, sexe);
+  }
+
+  List<dynamic> calculerResultats(
+      double imc, double poids, double taille, String sexe) {
+    String formattedResult = imc.toStringAsFixed(2);
+
+    double poidsIdeal;
     String category;
     String advice;
     String poidsIdealText = "";
 
-    double poidsIdeal;
     if (sexe == "Masculin") {
       poidsIdeal = taille - 100 - ((taille - 150) / 4);
     } else if (sexe == "Féminin") {
@@ -144,15 +181,16 @@ class _ImcFormState extends State<ImcForm> {
     }
     poidsIdealText =
         "Poids idéal pour la taille: ${poidsIdeal.toStringAsFixed(1)} kg";
-    if (result < 18.5) {
+
+    if (imc < 18.5) {
       category = "Sous-poids";
       advice =
           "Il est important de consulter un professionnel de la santé pour évaluer votre alimentation et votre état nutritionnel.";
-    } else if (result >= 18.5 && result < 25) {
+    } else if (imc < 25) {
       category = "Poids normal";
       advice =
           "Maintenez un mode de vie sain en pratiquant une activité physique régulière et en adoptant une alimentation équilibrée.";
-    } else if (result >= 25 && result < 30) {
+    } else if (imc < 30) {
       category = "Surpoids";
       advice =
           "Considérez des changements dans votre mode de vie, comme une alimentation plus équilibrée et une augmentation de l'activité physique.";
@@ -162,6 +200,16 @@ class _ImcFormState extends State<ImcForm> {
           "Consultez un professionnel de la santé pour obtenir des conseils personnalisés sur la gestion du poids et la santé générale.";
     }
 
+    return [formattedResult, poids, category, poidsIdealText, advice];
+  }
+
+  void afficherResultatSnackbar(List<dynamic> result) {
+    String formattedResult = result[0];
+    double poids = result[1];
+    String category = result[2];
+    String poidsIdealText = result[3];
+    String advice = result[4];
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Column(
@@ -169,13 +217,13 @@ class _ImcFormState extends State<ImcForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text("Résultat: $formattedResult"),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text("Poids: $poids kg"), // Afficher le poids de la personne
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text("Catégorie: $category"),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (poidsIdealText.isNotEmpty) Text(poidsIdealText),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text("Conseils: $advice"),
           ],
         ),

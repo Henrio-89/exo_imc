@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Attendre 5 secondes puis naviguer vers la page suivante
+    // Attendre 10 secondes puis naviguer vers la page suivante
     Future.delayed(const Duration(seconds: 10), () {
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) => NextPage()));

@@ -11,7 +11,7 @@ class NextPage extends StatefulWidget {
 class _NextPageState extends State<NextPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: ImcForm(),
     );
   }
