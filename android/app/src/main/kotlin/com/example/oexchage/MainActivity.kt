@@ -1,4 +1,4 @@
-package com.example.oexchage
+package com.example.imc
 
 import io.flutter.embedding.android.FlutterActivity
 

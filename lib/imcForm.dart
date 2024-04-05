@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:oexchage/resultPage.dart';
+import 'package:imc/resultPage.dart';
 
 class ImcForm extends StatefulWidget {
   const ImcForm({super.key});
@@ -35,11 +35,19 @@ class _ImcFormState extends State<ImcForm> {
                 TextFormField(
                   controller: _taillsController,
                   decoration: const InputDecoration(
-                    label: Text("Taille *"),
+                    label: Text("Taille (cm)*"),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Taille est requis";
+                    }
+                    // Vérifier si la valeur est un nombre entier positif
+                    if (int.tryParse(value) == null || int.parse(value) < 0) {
+                      return "Taille doit être un nombre entier positif";
+                    }
+                    // Vérifier si la taille est inférieure à 10
+                    if (int.parse(value) <= 50) {
+                      return "La taille doit être supérieure ou égale à 50 cm";
                     }
                     return null;
                   },
@@ -48,11 +56,14 @@ class _ImcFormState extends State<ImcForm> {
                 TextFormField(
                   controller: _poidsController,
                   decoration: const InputDecoration(
-                    label: Text("Poids *"),
+                    label: Text("Poids (kg)*"),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Poids est requis";
+                    }
+                    if (int.tryParse(value) == null || int.parse(value) < 0) {
+                      return "Taille doit être un nombre entier positif et supérieure ou égale à 1 kg";
                     }
                     return null;
                   },
@@ -60,6 +71,12 @@ class _ImcFormState extends State<ImcForm> {
                 const SizedBox(width: 10, height: 10),
                 DropdownButtonFormField(
                   value: sexeSelected,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Veuillez sélectionner un sexe";
+                    }
+                    return null;
+                  },
                   onChanged: (newValue) {
                     setState(() {
                       sexeSelected = newValue;
@@ -76,7 +93,7 @@ class _ImcFormState extends State<ImcForm> {
                     ),
                   ],
                   decoration: const InputDecoration(
-                    labelText: "Sexe", // Libellé du champ
+                    labelText: "Sexe *", // Libellé du champ
                     border: OutlineInputBorder(), // Style de bordure
                   ),
                 ),
@@ -98,7 +115,7 @@ class _ImcFormState extends State<ImcForm> {
                     MaterialButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          resultPageRoot();
+                          redirectToResultPage();
                         }
                       },
                       color: const Color.fromARGB(255, 23, 58, 87),
@@ -117,7 +134,7 @@ class _ImcFormState extends State<ImcForm> {
     );
   }
 
-  void resultPageRoot() {
+  void redirectToResultPage() {
     var result = calculPageResult();
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => ResultPage(result: result)));

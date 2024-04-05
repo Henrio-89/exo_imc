@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oexchage/splashScreen.dart';
+import 'package:imc/splashScreen.dart';
 
 void main() {
   runApp(const MyApp());

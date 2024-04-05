@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imc/NextPage.dart';
 
 class ResultPage extends StatefulWidget {
   final dynamic result;
@@ -32,10 +33,25 @@ class _ResultPageState extends State<ResultPage> {
               Text("${widget.result[3]}"),
               const SizedBox(height: 8),
               Text("Conseils: ${widget.result[4]}"),
+              MaterialButton(
+                onPressed: () {
+                  redirectToDialogPage();
+                },
+                color: const Color.fromARGB(255, 23, 58, 87),
+                child: const Text(
+                  "Dialog result page",
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  redirectToDialogPage() {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => NextPage()));
   }
 }

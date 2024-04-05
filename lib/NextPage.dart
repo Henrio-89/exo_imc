@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oexchage/imcForm.dart';
+import 'package:imc/imcForm.dart';
 
 class NextPage extends StatefulWidget {
   const NextPage({super.key});
