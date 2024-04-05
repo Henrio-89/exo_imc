@@ -226,9 +226,9 @@ class _ImcFormState extends State<ImcForm> {
     String category = result[2];
     String poidsIdealText = result[3];
     String advice = result[4];
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 10),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,

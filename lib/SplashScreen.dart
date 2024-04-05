@@ -32,9 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Lottie.network(
               uri_animation,
-              width: 400, // Ajustez la largeur de l'animation selon vos besoins
+              width: 400, 
               height:
-                  400, // Ajustez la hauteur de l'animation selon vos besoins
+                  400, 
             ),
             const SizedBox(height: 20),
             const Text(
